@@ -18,21 +18,6 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public User createUser(String name, String email, String password) {
-        userRepository.findByEmail(email).ifPresent(user -> {
-            throw new IllegalArgumentException("User already exists");
-        });
-
-        User user = User.builder()
-                .name(name)
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .build();
-
-        return userRepository.save(user);
-    }
-
-    @Override
     public User validateLogin(String email, String password) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 

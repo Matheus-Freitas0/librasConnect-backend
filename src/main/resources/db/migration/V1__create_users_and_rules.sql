@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     name VARCHAR(150) NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE user_rules (
+CREATE TABLE IF NOT EXISTS user_rules (
     user_id BIGINT NOT NULL,
     rule VARCHAR(50) NOT NULL,
     CONSTRAINT pk_user_rules PRIMARY KEY (user_id, rule),
@@ -16,4 +16,4 @@ CREATE TABLE user_rules (
         ON DELETE CASCADE
 );
 
-CREATE INDEX idx_user_rules_user_id ON user_rules (user_id);
+CREATE INDEX IF NOT EXISTS idx_user_rules_user_id ON user_rules (user_id);

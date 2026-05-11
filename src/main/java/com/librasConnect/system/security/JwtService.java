@@ -1,5 +1,6 @@
 package com.librasConnect.system.security;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 
@@ -23,7 +24,7 @@ public class JwtService {
     private static final String CLAIM_RULES = "rules";
 
     private SecretKey getKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(String email, String name, Collection<Rule> rules) {
