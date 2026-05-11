@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  librasconnect-backend:
+    build: .
+    container_name: librasconnect-backend
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - nginx-proxy
+      - n8n-kk4n_default
+
+networks:
+  nginx-proxy:
+    external: true
+  n8n-kk4n_default:
+    external: true
