@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.librasConnect.system.dto.v1.ClipPayloadDto;
+import com.librasConnect.system.dto.v1.FrameDto;
 
 public final class BimanualStats {
 
@@ -25,6 +27,23 @@ public final class BimanualStats {
             }
         }
         return (double) two / (double) n;
+    }
+
+    public static boolean isBimanualClip(ClipPayloadDto clip) {
+        if (clip.frames() == null || clip.frames().isEmpty()) {
+            return false;
+        }
+        int withHands = 0;
+        int twoHands = 0;
+        for (FrameDto f : clip.frames()) {
+            if (f.hands() != null && !f.hands().isEmpty()) {
+                withHands++;
+                if (f.hands().size() >= 2) {
+                    twoHands++;
+                }
+            }
+        }
+        return withHands > 0 && (double) twoHands / withHands >= 0.5;
     }
 
     public static boolean isBimanualFromSampleRatios(List<Double> ratios) {

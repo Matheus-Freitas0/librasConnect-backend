@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.librasConnect.system.dto.v1.ClipPayloadDto;
 import com.librasConnect.system.dto.v1.FrameDto;
 import com.librasConnect.system.dto.v1.RawHandDto;
+import com.librasConnect.system.signs.PreparedStoredSeries.StoredTimedFrame;
 
 public final class ClipTemporalDistance {
 
@@ -20,16 +21,43 @@ public final class ClipTemporalDistance {
 
     public static double dtwAverageCost(ClipPayloadDto query, JsonNode storedFrames, int storedDurationMs,
             int maxSeriesPoints) {
-        if (storedFrames == null || !storedFrames.isArray() || storedFrames.isEmpty()) {
-            return Double.POSITIVE_INFINITY;
-        }
+        return dtwAverageCost(prepareQuery(query, maxSeriesPoints),
+                prepareStored(storedFrames, storedDurationMs, maxSeriesPoints));
+    }
+
+    public static PreparedQuerySeries prepareQuery(ClipPayloadDto query, int maxSeriesPoints) {
         List<FrameDto> qSeq = framesWithHandsSorted(query.frames());
-        List<TimedFrameNode> sSeq = storedFramesWithHandsSorted(storedFrames, storedDurationMs);
-        if (qSeq.isEmpty() || sSeq.isEmpty()) {
+        if (qSeq.isEmpty()) {
+            return new PreparedQuerySeries(List.of());
+        }
+        return new PreparedQuerySeries(subsampleUniformTimeFrames(qSeq, maxSeriesPoints));
+    }
+
+    public static PreparedStoredSeries prepareStored(JsonNode storedFrames, int storedDurationMs, int maxSeriesPoints) {
+        if (storedFrames == null || !storedFrames.isArray() || storedFrames.isEmpty()) {
+            return new PreparedStoredSeries(List.of());
+        }
+        List<StoredTimedFrame> sSeq = storedFramesWithHandsSorted(storedFrames, storedDurationMs);
+        if (sSeq.isEmpty()) {
+            return new PreparedStoredSeries(List.of());
+        }
+        return new PreparedStoredSeries(subsampleUniformTimeStored(sSeq, maxSeriesPoints));
+    }
+
+    public static PreparedQuerySeries subsampleQuery(PreparedQuerySeries query, int maxSeriesPoints) {
+        return new PreparedQuerySeries(subsampleUniformTimeFrames(query.frames(), maxSeriesPoints));
+    }
+
+    public static PreparedStoredSeries subsampleStored(PreparedStoredSeries stored, int maxSeriesPoints) {
+        return new PreparedStoredSeries(subsampleUniformTimeStored(stored.frames(), maxSeriesPoints));
+    }
+
+    public static double dtwAverageCost(PreparedQuerySeries query, PreparedStoredSeries stored) {
+        List<FrameDto> qs = query.frames();
+        List<StoredTimedFrame> ss = stored.frames();
+        if (qs.isEmpty() || ss.isEmpty()) {
             return Double.POSITIVE_INFINITY;
         }
-        List<FrameDto> qs = subsampleUniformTimeFrames(qSeq, maxSeriesPoints);
-        List<TimedFrameNode> ss = subsampleUniformTimeStored(sSeq, maxSeriesPoints);
         int n = qs.size();
         int m = ss.size();
         double[][] cost = new double[n][m];
@@ -52,22 +80,19 @@ public final class ClipTemporalDistance {
         return out;
     }
 
-    private static List<TimedFrameNode> storedFramesWithHandsSorted(JsonNode arr, int durationMs) {
+    private static List<StoredTimedFrame> storedFramesWithHandsSorted(JsonNode arr, int durationMs) {
         int len = arr.size();
-        List<TimedFrameNode> out = new ArrayList<>();
+        List<StoredTimedFrame> out = new ArrayList<>();
         for (int i = 0; i < len; i++) {
             JsonNode f = arr.get(i);
             JsonNode hands = f.get("hands");
             if (hands != null && hands.isArray() && hands.size() > 0) {
                 int t = readT(f, i, len, durationMs);
-                out.add(new TimedFrameNode(t, f));
+                out.add(new StoredTimedFrame(t, f));
             }
         }
-        out.sort(Comparator.comparingInt(TimedFrameNode::t));
+        out.sort(Comparator.comparingInt(StoredTimedFrame::t));
         return out;
-    }
-
-    private record TimedFrameNode(int t, JsonNode frame) {
     }
 
     private static int readT(JsonNode frame, int indexInArray, int totalFrames, int durationMs) {
@@ -95,14 +120,14 @@ public final class ClipTemporalDistance {
         return out;
     }
 
-    private static List<TimedFrameNode> subsampleUniformTimeStored(List<TimedFrameNode> sorted, int maxPoints) {
+    private static List<StoredTimedFrame> subsampleUniformTimeStored(List<StoredTimedFrame> sorted, int maxPoints) {
         if (sorted.size() <= maxPoints) {
             return sorted;
         }
         int tMin = sorted.get(0).t();
         int tMax = sorted.get(sorted.size() - 1).t();
         int span = Math.max(tMax - tMin, 1);
-        List<TimedFrameNode> out = new ArrayList<>(maxPoints);
+        List<StoredTimedFrame> out = new ArrayList<>(maxPoints);
         for (int k = 0; k < maxPoints; k++) {
             int targetT = tMin + (int) Math.round((double) k * span / Math.max(maxPoints - 1, 1));
             out.add(nearestTimedStored(sorted, targetT));
@@ -123,10 +148,10 @@ public final class ClipTemporalDistance {
         return best;
     }
 
-    private static TimedFrameNode nearestTimedStored(List<TimedFrameNode> sorted, int targetT) {
-        TimedFrameNode best = sorted.get(0);
+    private static StoredTimedFrame nearestTimedStored(List<StoredTimedFrame> sorted, int targetT) {
+        StoredTimedFrame best = sorted.get(0);
         int bestD = Math.abs(best.t() - targetT);
-        for (TimedFrameNode x : sorted) {
+        for (StoredTimedFrame x : sorted) {
             int d = Math.abs(x.t() - targetT);
             if (d < bestD) {
                 bestD = d;

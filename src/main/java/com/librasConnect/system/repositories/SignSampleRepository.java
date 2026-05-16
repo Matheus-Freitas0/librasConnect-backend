@@ -2,11 +2,15 @@ package com.librasConnect.system.repositories;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.librasConnect.system.models.SignSample;
 
 public interface SignSampleRepository extends JpaRepository<SignSample, String> {
+
+    @EntityGraph(attributePaths = "sign")
+    List<SignSample> findAllWithSign();
 
     List<SignSample> findBySign_IdOrderByCreatedAtAsc(String signId);
 

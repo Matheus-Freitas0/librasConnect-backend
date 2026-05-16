@@ -12,4 +12,8 @@ public final class ClipComparison {
             int maxSeriesPoints) {
         return ClipTemporalDistance.dtwAverageCost(query, storedFrames, storedDurationMs, maxSeriesPoints);
     }
+
+    public static double temporalDistance(PreparedQuerySeries query, PreparedStoredSeries stored) {
+        return ClipTemporalDistance.dtwAverageCost(query, stored);
+    }
 }

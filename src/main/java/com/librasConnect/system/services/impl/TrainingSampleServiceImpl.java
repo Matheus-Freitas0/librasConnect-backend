@@ -20,6 +20,7 @@ import com.librasConnect.system.models.Sign;
 import com.librasConnect.system.models.SignSample;
 import com.librasConnect.system.repositories.SignRepository;
 import com.librasConnect.system.repositories.SignSampleRepository;
+import com.librasConnect.system.services.RecognitionLexiconCache;
 import com.librasConnect.system.services.TrainingSampleService;
 import com.librasConnect.system.signs.BimanualStats;
 import com.librasConnect.system.signs.ClipPayloadValidator;
@@ -30,16 +31,19 @@ public class TrainingSampleServiceImpl implements TrainingSampleService {
 
     private final SignRepository signRepository;
     private final SignSampleRepository signSampleRepository;
+    private final RecognitionLexiconCache recognitionLexiconCache;
     private final ClipPayloadValidator clipValidator;
     private final ObjectMapper objectMapper;
 
     public TrainingSampleServiceImpl(
             SignRepository signRepository,
             SignSampleRepository signSampleRepository,
+            RecognitionLexiconCache recognitionLexiconCache,
             ClipPayloadValidator clipValidator,
             ObjectMapper objectMapper) {
         this.signRepository = signRepository;
         this.signSampleRepository = signSampleRepository;
+        this.recognitionLexiconCache = recognitionLexiconCache;
         this.clipValidator = clipValidator;
         this.objectMapper = objectMapper;
     }
@@ -77,6 +81,7 @@ public class TrainingSampleServiceImpl implements TrainingSampleService {
                 .build();
         signSampleRepository.save(sample);
         refreshSignAggregates(signId);
+        recognitionLexiconCache.invalidate();
         return new SampleMetaDto(sample.getId(), signId, sample.getCreatedAt(), sample.getDurationMs(),
                 sample.getFrameCount());
     }
