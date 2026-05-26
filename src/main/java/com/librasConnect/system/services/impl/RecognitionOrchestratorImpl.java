@@ -44,9 +44,9 @@ public class RecognitionOrchestratorImpl implements RecognitionOrchestrator {
             RecognitionLexiconCache lexiconCache,
             ClipPayloadValidator clipValidator,
             @Value("${app.recognizer.enabled:true}") boolean enabled,
-            @Value("${app.recognizer.max-mean-distance:0.018}") double maxMeanDistance,
+            @Value("${app.recognizer.max-mean-distance:0.012}") double maxMeanDistance,
             @Value("${app.recognizer.min-gap-next-sign:0.004}") double minGapToSecondSign,
-            @Value("${app.recognizer.dtw-max-series-points:128}") int dtwMaxSeriesPoints,
+            @Value("${app.recognizer.dtw-max-series-points:96}") int dtwMaxSeriesPoints,
             @Value("${app.recognizer.coarse-series-points:48}") int coarseSeriesPoints,
             @Value("${app.recognizer.coarse-top-signs:8}") int coarseTopSigns) {
         this.lexiconCache = lexiconCache;

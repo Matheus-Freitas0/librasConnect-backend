@@ -56,15 +56,17 @@ A aplicação é parametrizada por variáveis de ambiente (com defaults em `appl
 | `DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/librasconnect` | URL JDBC do Postgres |
 | `DATASOURCE_USERNAME` | `postgres` | Usuário do banco |
 | `DATASOURCE_PASSWORD` | _(vazio)_ | Senha do banco |
-| `HIKARI_MAX_LIFETIME` | `600000` | Vida máxima de conexão (ms) |
-| `HIKARI_KEEPALIVE_TIME` | `120000` | Keepalive de conexão (ms) |
+| `HIKARI_MAX_LIFETIME` | `300000` | Vida máxima de conexão (ms); deve ser menor que o timeout do Postgres/proxy |
+| `HIKARI_IDLE_TIMEOUT` | `240000` | Tempo máximo ociosa no pool (ms) |
+| `HIKARI_KEEPALIVE_TIME` | `60000` | Ping periodico para evitar conexao morta (ms) |
+| `HIKARI_CONNECTION_TIMEOUT` | `20000` | Timeout ao obter conexao do pool (ms) |
 | `URL_CORS_PERMISSION` | `http://localhost:5173` | Origem permitida no CORS |
 | `JWT_SECRET` | _(default longo, **trocar em produção**)_ | Segredo HMAC para assinar JWT |
 | `app.api.max-body-bytes` | `4194304` | Limite do corpo (bytes) para rotas `/api/v1/*` |
 | `app.recognizer.enabled` | `true` | Liga/desliga o reconhecedor |
-| `app.recognizer.max-mean-distance` | `0.018` | Distância média máxima aceita |
+| `app.recognizer.max-mean-distance` | `0.012` | Distância média máxima aceita |
 | `app.recognizer.min-gap-next-sign` | `0.004` | Gap mínimo entre 1º e 2º sinal candidato |
-| `app.recognizer.dtw-max-series-points` | `128` | Pontos máximos no DTW fino |
+| `app.recognizer.dtw-max-series-points` | `96` | Pontos máximos no DTW fino |
 | `app.recognizer.coarse-series-points` | `48` | Pontos no DTW _coarse_ (0 desliga) |
 | `app.recognizer.coarse-top-signs` | `8` | Top-N sinais após fase _coarse_ |
 

@@ -20,7 +20,7 @@ public class RecognitionLexiconCacheImpl implements RecognitionLexiconCache {
 
     public RecognitionLexiconCacheImpl(
             SignSampleRepository signSampleRepository,
-            @Value("${app.recognizer.dtw-max-series-points:128}") int dtwMaxSeriesPoints) {
+            @Value("${app.recognizer.dtw-max-series-points:96}") int dtwMaxSeriesPoints) {
         this.signSampleRepository = signSampleRepository;
         this.dtwMaxSeriesPoints = Math.max(8, dtwMaxSeriesPoints);
     }
