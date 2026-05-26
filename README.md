@@ -198,6 +198,8 @@ Localizadas em `src/main/resources/db/migration`, seguem o padrão Flyway `V{n}_
 ./mvnw test
 ```
 
-## Licença
+## Licença e manutenção
 
-Projeto interno do librasConnect.
+Este repositório é mantido por **[Matheus Freitas](https://github.com/Matheus-Freitas0)** ([@Matheus-Freitas0](https://github.com/Matheus-Freitas0)).
+
+O código-fonte é de propriedade do mantenedor. Não há arquivo `LICENSE` na raiz do projeto — uso, cópia e distribuição fora do escopo autorizado pelo mantenedor não são permitidos sem permissão prévia.
