@@ -46,6 +46,9 @@ public class SignSample {
     @Column(name = "frame_count", nullable = false)
     private int frameCount;
 
+    @Column(name = "two_hand_frame_ratio", nullable = false)
+    private double twoHandFrameRatio;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
     private JsonNode frames;

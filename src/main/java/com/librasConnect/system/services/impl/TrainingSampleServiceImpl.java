@@ -1,7 +1,6 @@
 package com.librasConnect.system.services.impl;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +23,7 @@ import com.librasConnect.system.services.RecognitionLexiconCache;
 import com.librasConnect.system.services.TrainingSampleService;
 import com.librasConnect.system.signs.BimanualStats;
 import com.librasConnect.system.signs.ClipPayloadValidator;
+import com.librasConnect.system.signs.ClipSegmentTailTrim;
 import com.librasConnect.system.signs.SignLabelSlug;
 
 @Service
@@ -56,7 +56,8 @@ public class TrainingSampleServiceImpl implements TrainingSampleService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "label deve ter entre 1 e 60 caracteres");
         }
         String signId = SignLabelSlug.toSignId(labelDisplay);
-        ClipPayloadDto clip = new ClipPayloadDto(request.durationMs(), request.frames());
+        ClipPayloadDto clip = ClipSegmentTailTrim.prepareClip(
+                new ClipPayloadDto(request.durationMs(), request.frames()));
         clipValidator.validate(clip);
         String description = request.description() == null ? null
                 : SignLabelSlug.normalizeLabelWhitespace(request.description());
@@ -77,11 +78,12 @@ public class TrainingSampleServiceImpl implements TrainingSampleService {
                 .createdAt(now)
                 .durationMs(clip.durationMs())
                 .frameCount(clip.frames().size())
+                .twoHandFrameRatio(BimanualStats.twoHandFrameRatio(clip))
                 .frames(framesJson)
                 .build();
         signSampleRepository.save(sample);
         refreshSignAggregates(signId);
-        recognitionLexiconCache.invalidate();
+        recognitionLexiconCache.registerSample(sample.getId());
         return new SampleMetaDto(sample.getId(), signId, sample.getCreatedAt(), sample.getDurationMs(),
                 sample.getFrameCount());
     }
@@ -113,13 +115,9 @@ public class TrainingSampleServiceImpl implements TrainingSampleService {
     private void refreshSignAggregates(String signId) {
         Sign sign = signRepository.findById(signId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Sinal não encontrado"));
-        List<SignSample> samples = signSampleRepository.findBySign_IdOrderByCreatedAtAsc(signId);
-        List<Double> ratios = new ArrayList<>();
-        for (SignSample s : samples) {
-            ratios.add(BimanualStats.medianRatioTwoHands(s.getFrames()));
-        }
-        sign.setSampleCount(samples.size());
-        sign.setBimanual(BimanualStats.isBimanualFromSampleRatios(ratios));
+        sign.setSampleCount((int) signSampleRepository.countBySign_Id(signId));
+        sign.setBimanual(BimanualStats.isBimanualFromSampleRatios(
+                signSampleRepository.findTwoHandFrameRatiosBySign_Id(signId)));
         sign.setUpdatedAt(Instant.now());
         signRepository.save(sign);
     }

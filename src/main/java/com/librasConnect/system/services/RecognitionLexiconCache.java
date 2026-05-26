@@ -10,6 +10,8 @@ public interface RecognitionLexiconCache {
 
     void invalidate();
 
+    void registerSample(String sampleId);
+
     record LexiconSnapshot(List<CachedSample> samples) {
         public boolean isEmpty() {
             return samples.isEmpty();

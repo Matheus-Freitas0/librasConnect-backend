@@ -11,7 +11,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.librasConnect.system.dto.v1.ClipPayloadDto;
 import com.librasConnect.system.dto.v1.RecognizeResponseDto;
@@ -61,10 +60,9 @@ public class RecognitionOrchestratorImpl implements RecognitionOrchestrator {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public RecognizeResponseDto recognize(ClipPayloadDto clip) {
-        clipValidator.validate(clip);
-        ClipPayloadDto matchClip = ClipSegmentTailTrim.trimTrailingFramesWithoutHands(clip);
+        ClipPayloadDto matchClip = ClipSegmentTailTrim.prepareClip(clip);
+        clipValidator.validate(matchClip);
         if (!enabled) {
             throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE,
                     "Serviço de reconhecimento temporariamente indisponível",

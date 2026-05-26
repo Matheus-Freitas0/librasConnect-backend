@@ -1,0 +1,2 @@
+ALTER TABLE sign_sample
+    ADD COLUMN IF NOT EXISTS two_hand_frame_ratio DOUBLE PRECISION NOT NULL DEFAULT 0;

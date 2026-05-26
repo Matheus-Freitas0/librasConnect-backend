@@ -13,6 +13,20 @@ public final class BimanualStats {
     private BimanualStats() {
     }
 
+    public static double twoHandFrameRatio(ClipPayloadDto clip) {
+        if (clip.frames() == null || clip.frames().isEmpty()) {
+            return 0;
+        }
+        int n = clip.frames().size();
+        int two = 0;
+        for (FrameDto f : clip.frames()) {
+            if (f.hands() != null && f.hands().size() >= 2) {
+                two++;
+            }
+        }
+        return (double) two / n;
+    }
+
     public static double medianRatioTwoHands(JsonNode framesArray) {
         if (framesArray == null || !framesArray.isArray() || framesArray.size() == 0) {
             return 0;

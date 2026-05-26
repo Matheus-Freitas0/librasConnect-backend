@@ -86,7 +86,7 @@ public final class ClipTemporalDistance {
         for (int i = 0; i < len; i++) {
             JsonNode f = arr.get(i);
             JsonNode hands = f.get("hands");
-            if (hands != null && hands.isArray() && hands.size() > 0) {
+            if (hands != null && hands.isArray() && !hands.isEmpty()) {
                 int t = readT(f, i, len, durationMs);
                 out.add(new StoredTimedFrame(t, f));
             }
