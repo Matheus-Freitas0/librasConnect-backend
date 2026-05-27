@@ -64,8 +64,8 @@ A aplicação é parametrizada por variáveis de ambiente (com defaults em `appl
 | `JWT_SECRET` | _(default longo, **trocar em produção**)_ | Segredo HMAC para assinar JWT |
 | `app.api.max-body-bytes` | `4194304` | Limite do corpo (bytes) para rotas `/api/v1/*` |
 | `app.recognizer.enabled` | `true` | Liga/desliga o reconhecedor |
-| `app.recognizer.max-mean-distance` | `0.012` | Distância média máxima aceita |
-| `app.recognizer.min-gap-next-sign` | `0.004` | Gap mínimo entre 1º e 2º sinal candidato |
+| `app.recognizer.max-mean-distance` | `0.022` | Distância média máxima aceita (maior = aceita mais gestos) |
+| `app.recognizer.min-gap-next-sign` | `0.001` | Gap mínimo entre 1º e 2º sinal candidato (menor = menos rejeição por ambiguidade) |
 | `app.recognizer.dtw-max-series-points` | `96` | Pontos máximos no DTW fino |
 | `app.recognizer.coarse-series-points` | `48` | Pontos no DTW _coarse_ (0 desliga) |
 | `app.recognizer.coarse-top-signs` | `8` | Top-N sinais após fase _coarse_ |
